@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { PostsService } from './posts.service';
 
 /**
@@ -51,12 +51,17 @@ export class PostsController {
   // 1) GET /posts
   //    모든 posts를 가져온다.
   @Get()
-  getPosts() {
+  getPosts(): PostModel[] {
     return posts;
   }
 
   // 2) GET /posts/:id
   //    id에 해당하는 posts를 가져온다.
+  @Get(':id')
+  getPost(@Param('id') id: string): PostModel {
+    return posts.find((post) => post.id === +id);
+    // return posts[id];
+  }
 
   // 3) POST /posts
   //    posts를 생성한다.
