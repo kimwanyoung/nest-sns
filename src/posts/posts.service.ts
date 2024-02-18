@@ -3,42 +3,6 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostModel } from './entities/posts.entity';
 
-export interface PostModel {
-  id: number;
-  author: string;
-  title: string;
-  content: string;
-  likeCount: number;
-  commentCount: number;
-}
-
-let posts: PostModel[] = [
-  {
-    id: 1,
-    author: 'tester',
-    title: 'test title',
-    content: 'test content',
-    likeCount: 10,
-    commentCount: 8,
-  },
-  {
-    id: 2,
-    author: 'tester2',
-    title: 'test title2',
-    content: 'test content2',
-    likeCount: 102,
-    commentCount: 82,
-  },
-  {
-    id: 3,
-    author: 'tester3',
-    title: 'test title3',
-    content: 'test content3',
-    likeCount: 103,
-    commentCount: 83,
-  },
-];
-
 @Injectable()
 export class PostsService {
   constructor(
@@ -46,12 +10,14 @@ export class PostsService {
     private readonly postRepository: Repository<PostModel>,
   ) {}
 
-  getAllPosts() {
-    return posts;
+  async getAllPosts() {
+    return this.postRepository.find();
   }
 
-  getPostById(postId: number) {
-    const post = posts.find((post) => post.id === postId);
+  async getPostById(postId: number) {
+    const post = await this.postRepository.findOne({
+      where: { id: postId },
+    });
 
     if (!post) {
       throw new NotFoundException();
@@ -60,21 +26,29 @@ export class PostsService {
     return post;
   }
 
-  createPost(author: string, title: string, content: string) {
-    const post: PostModel = {
-      id: posts[posts.length - 1].id + 1,
+  async createPost(author: string, title: string, content: string) {
+    const post = this.postRepository.create({
       author,
       title,
       content,
       likeCount: 0,
       commentCount: 0,
-    };
-    posts = [...posts, post];
-    return post;
+    });
+
+    return await this.postRepository.save(post);
   }
 
-  updatePost(postId: number, author: string, title: string, content: string) {
-    const post = posts.find((post) => post.id === postId);
+  async updatePost(
+    postId: number,
+    author: string,
+    title: string,
+    content: string,
+  ) {
+    const post = await this.postRepository.findOne({
+      where: {
+        id: postId,
+      },
+    });
 
     if (!post) {
       throw new NotFoundException();
@@ -92,18 +66,21 @@ export class PostsService {
       post.content = content;
     }
 
-    posts = posts.map((prevPost) => (prevPost.id === postId ? post : prevPost));
-    return post;
+    return await this.postRepository.save(post);
   }
 
-  deletePost(postId: number) {
-    const post = posts.filter((post) => post.id === postId);
+  async deletePost(postId: number) {
+    const post = await this.postRepository.findOne({
+      where: {
+        id: postId,
+      },
+    });
 
     if (!post) {
       throw new NotFoundException();
     }
 
-    posts = posts.filter((post) => post.id !== postId);
+    await this.postRepository.delete(postId);
 
     return postId;
   }
