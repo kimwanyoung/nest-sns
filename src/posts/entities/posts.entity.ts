@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { UserModel } from '../../users/entities/users.entity';
 
 @Entity()
 export class PostModel {
