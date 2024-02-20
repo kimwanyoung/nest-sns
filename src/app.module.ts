@@ -5,7 +5,7 @@ import { PostsModule } from './posts/posts.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostModel } from './posts/entities/posts.entity';
 import { UsersModule } from './users/users.module';
-import { UserModel } from './users/entities/users.entity';
+import { UsersModel } from './users/entities/users.entity';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { UserModel } from './users/entities/users.entity';
       database: 'postgres',
       entities: [
         PostModel,
-        UserModel,
+        UsersModel,
       ],
       synchronize: true,
     }),

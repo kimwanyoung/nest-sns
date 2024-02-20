@@ -11,12 +11,15 @@ export class PostsService {
   ) {}
 
   async getAllPosts() {
-    return this.postRepository.find();
+    return this.postRepository.find({
+      relations: ['author'],
+    });
   }
 
   async getPostById(postId: number) {
     const post = await this.postRepository.findOne({
       where: { id: postId },
+      relations: ['author'],
     });
 
     if (!post) {
@@ -26,9 +29,11 @@ export class PostsService {
     return post;
   }
 
-  async createPost(author: string, title: string, content: string) {
+  async createPost(authorId: number, title: string, content: string) {
     const post = this.postRepository.create({
-      author,
+      author: {
+        id: authorId,
+      },
       title,
       content,
       likeCount: 0,
@@ -40,7 +45,6 @@ export class PostsService {
 
   async updatePost(
     postId: number,
-    author: string,
     title: string,
     content: string,
   ) {
@@ -52,10 +56,6 @@ export class PostsService {
 
     if (!post) {
       throw new NotFoundException();
-    }
-
-    if (author) {
-      post.author = author;
     }
 
     if (title) {
