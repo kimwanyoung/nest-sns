@@ -1,11 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersModel } from '../users/entities/users.entity';
-import { JWT_SECRET } from './const/auth.const';
+import { HASH_ROUNDS, JWT_SECRET } from './const/auth.const';
+import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userService: UsersService,
+  ) {}
   /**
    * 우리가 만드려는 기능
    *
@@ -50,5 +55,52 @@ export class AuthService {
       secret: JWT_SECRET,
       expiresIn: isRefreshToken ? 3600 : 300,
     });
+  }
+
+  async loginUser(user: Pick<UsersModel, 'email' | 'id'>) {
+    return {
+      accessToken: this.signToken(user, false),
+      refreshToken: this.signToken(user, true),
+    };
+  }
+
+  async authenticateWithEmailAndPassword(user: Pick<UsersModel, 'email' | 'password'>) {
+    /**
+     * 사용자가 존재하는지 확 (email)
+     * 비밀번호가 맞는지 확인
+     * 모두 통과하면 사용자 정보를 반환
+     */
+    const existingUser = await this.userService.getUserByEmail(user.email);
+    if (!user) {
+      throw new UnauthorizedException('존재하지 않는 사용자 입니다.');
+    }
+
+    /**
+     * 파라미터
+     *
+     * 1) 입력된 비밀번호
+     * 2) 기존의 해시(hash) -> 사용자 정보에 저장돼있는 hash
+     */
+    const passOk = await bcrypt.compare(user.password, existingUser.password);
+    if (!passOk) {
+      throw new UnauthorizedException('비밀번호가 틀렸습니다.');
+    }
+
+    return existingUser;
+  }
+
+  async loginWithEmail(user: Pick<UsersModel, 'email' | 'password'>) {
+    const existingUser = await this.authenticateWithEmailAndPassword(user);
+    return this.loginUser(existingUser);
+  }
+
+  async registerWithEmail(user: Pick<UsersModel,'nickname' | 'email' | 'password'>){
+    const hash = await bcrypt.hash(
+      user.password,
+      HASH_ROUNDS,
+    );
+
+    const newUser = await this.userService.createUser(user);
+    return this.loginUser(newUser);
   }
 }
