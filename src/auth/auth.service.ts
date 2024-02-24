@@ -99,7 +99,7 @@ export class AuthService {
      * email: email.
      * type: 'access' | 'refresh'
      */
-    if (decoded.type !== 'refresh') {
+    if (decoded.type !== TOKEN_TYPE.REFRESH) {
       throw new UnauthorizedException(
         '토큰 재발급은 refreshToken으로만 가능합니다.',
       );
@@ -145,7 +145,7 @@ export class AuthService {
     const payload = {
       email: user.email,
       sub: user.id,
-      type: isRefreshToken,
+      type: isRefreshToken ? TOKEN_TYPE.REFRESH : TOKEN_TYPE.ACCESS,
     };
 
     return this.jwtService.sign(payload, {
@@ -203,4 +203,9 @@ export class AuthService {
     });
     return this.loginUser(newUser);
   }
+}
+
+enum TOKEN_TYPE {
+  REFRESH = 'refresh',
+  ACCESS = 'access',
 }
