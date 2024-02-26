@@ -7,6 +7,7 @@ import { PostModel } from './posts/entities/posts.entity';
 import { UsersModule } from './users/users.module';
 import { UsersModel } from './users/entities/users.entity';
 import { AuthModule } from './auth/auth.module';
+import { Auth2Module } from './auth2/auth2.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    Auth2Module,
   ],
   controllers: [AppController],
   providers: [AppService],
