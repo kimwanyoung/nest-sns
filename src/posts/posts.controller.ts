@@ -1,14 +1,17 @@
 import {
   Body,
-  Controller, DefaultValuePipe,
+  Controller,
   Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
+import { User } from '../users/decorator/user.decorator';
+import { UsersModel } from '../users/entities/users.entity';
 
 @Controller('posts')
 export class PostsController {
@@ -32,11 +35,11 @@ export class PostsController {
   //    posts를 생성한다.
   @Post()
   postPosts(
-    @Body('authorId') authorId: string,
+    @User() user: UsersModel,
     @Body('title') title: string,
     @Body('content') content: string,
   ) {
-    return this.postsService.createPost(parseInt(authorId), title, content);
+    return this.postsService.createPost(user.id, title, content);
   }
 
   // 4) PATCH /posts/:id
