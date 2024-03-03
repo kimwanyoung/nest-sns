@@ -28,9 +28,7 @@ export class AuthController {
   }
 
   @Post('login/email')
-  postLoginEmail(
-    @Headers('authorization') rawToken: string,
-  ) {
+  postLoginEmail(@Headers('authorization') rawToken: string) {
     const token = this.authService.extractTokenFromHeader(rawToken, false);
 
     const credentials = this.authService.decodeBasicToken(token);
@@ -50,6 +48,4 @@ export class AuthController {
       password,
     });
   }
-
-
 }
