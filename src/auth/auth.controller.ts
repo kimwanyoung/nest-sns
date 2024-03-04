@@ -1,6 +1,15 @@
-import { Body, Controller, Headers, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  Logger,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { MaxLengthPipe, MinLengthPipe, PasswordPipe } from './pipe/password.pipe';
+import { MaxLengthPipe, MinLengthPipe } from './pipe/password.pipe';
+import { BasicTokenGuard } from './guard/basic-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -29,7 +38,11 @@ export class AuthController {
   }
 
   @Post('login/email')
-  postLoginEmail(@Headers('authorization') rawToken: string) {
+  @UseGuards(BasicTokenGuard)
+  postLoginEmail(
+    @Headers('authorization') rawToken: string,
+    @Request() request: any,
+  ) {
     const token = this.authService.extractTokenFromHeader(rawToken, false);
 
     const credentials = this.authService.decodeBasicToken(token);
@@ -41,8 +54,9 @@ export class AuthController {
   postRegisterEmail(
     @Body('nickname') nickname: string,
     @Body('email') email: string,
-    @Body('password', new MaxLengthPipe(8), new MinLengthPipe(3)) password: string,
-    ) {
+    @Body('password', new MaxLengthPipe(8), new MinLengthPipe(3))
+    password: string,
+  ) {
     return this.authService.registerWithEmail({
       nickname,
       email,
