@@ -12,6 +12,7 @@ import {
 import { PostsService } from './posts.service';
 import { User } from '../users/decorator/user.decorator';
 import { UsersModel } from '../users/entities/users.entity';
+import { AccessTokenGuard } from '../auth/guard/bearer-token.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -34,6 +35,7 @@ export class PostsController {
   // 3) POST /posts
   //    posts를 생성한다.
   @Post()
+  @UseGuards(AccessTokenGuard)
   postPosts(
     @User() user: UsersModel,
     @Body('title') title: string,
