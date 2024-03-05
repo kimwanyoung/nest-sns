@@ -45,7 +45,6 @@ export class AuthController {
     const token = this.authService.extractTokenFromHeader(rawToken, false);
 
     const credentials = this.authService.decodeBasicToken(token);
-    Logger.log(credentials);
     return this.authService.loginWithEmail(credentials);
   }
 
