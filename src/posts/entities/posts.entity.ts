@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { UsersModel } from '../../users/entities/users.entity';
 import { BaseModel } from '../../common/entity/base.entity';
+import { IsString } from 'class-validator';
 
 @Entity()
 export class PostModel extends BaseModel {
@@ -10,9 +11,15 @@ export class PostModel extends BaseModel {
   author: UsersModel;
 
   @Column()
+  @IsString({
+    message: 'title은 string타입을 입력해주어야 합니다.',
+  })
   title: string;
 
   @Column()
+  @IsString({
+    message: 'content는 string타입을 입력해주어야 합니다.',
+  })
   content: string;
 
   @Column()
