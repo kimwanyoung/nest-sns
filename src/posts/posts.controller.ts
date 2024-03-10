@@ -6,7 +6,7 @@ import {
   Param,
   ParseIntPipe, Patch,
   Post,
-  Put,
+  Put, Query,
   UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
@@ -15,6 +15,7 @@ import { UsersModel } from '../users/entities/users.entity';
 import { AccessTokenGuard } from '../auth/guard/bearer-token.guard';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PaginatePostDto } from './dto/paginate-post.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -23,8 +24,8 @@ export class PostsController {
   // 1) GET /posts
   //    모든 posts를 가져온다.
   @Get()
-  getPosts() {
-    return this.postsService.getAllPosts();
+  getPosts(@Query() query: PaginatePostDto) {
+    return this.postsService.paginatePosts(query);
   }
 
   // 2) GET /posts/:id
@@ -40,6 +41,14 @@ export class PostsController {
   @UseGuards(AccessTokenGuard)
   postPosts(@User('id') userId: number, @Body() body: CreatePostDto) {
     return this.postsService.createPost(userId, body);
+  }
+
+  //posts/random
+  @Post('random')
+  @UseGuards(AccessTokenGuard)
+  async postPostsRandom(@User() user: UsersModel) {
+    await this.postsService.generateRandomPosts(user.id);
+    return true;
   }
 
   // 4) PATCH /posts/:id
