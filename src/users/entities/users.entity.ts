@@ -10,6 +10,7 @@ import { IsEmail, IsString, Length } from 'class-validator';
 import { lengthValidationMessage } from '../../common/validation-message/length-validation.message';
 import { stringValidationMessage } from '../../common/validation-message/string-validation.message';
 import { emailValidationMessage } from '../../common/validation-message/email-validation.message';
+import { Exclude, Expose } from 'class-transformer';
 
 @Entity()
 export class UsersModel extends BaseModel {
@@ -37,6 +38,11 @@ export class UsersModel extends BaseModel {
   // 2) 유일무이한 값
   nickname: string;
 
+  // @Expose()
+  // get nicknameAndEmail() {
+  //   return this.nickname + '/' + this.email;
+  // }
+
   @Column({
     unique: true,
   })
@@ -55,6 +61,19 @@ export class UsersModel extends BaseModel {
   })
   @Length(3, 8, {
     message: lengthValidationMessage,
+  })
+  /**
+   * frontend -> backed
+   * plain object (JSON) -> class instance(dto)
+   *
+   * backend -> frontend
+   * class instance (dto) -> plain object (JSON)
+   *
+   * toClassOnly -> class instance로 변환될 때만
+   * toPlainOnly -> plain object로 변환될 때만
+   */
+  @Exclude({
+    toPlainOnly: true,
   })
   password: string;
 

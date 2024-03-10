@@ -1,5 +1,5 @@
 import {
-  Body,
+  Body, ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -7,7 +7,7 @@ import {
   ParseIntPipe, Patch,
   Post,
   Put,
-  UseGuards,
+  UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { User } from '../users/decorator/user.decorator';
